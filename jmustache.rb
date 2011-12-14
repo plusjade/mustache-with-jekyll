@@ -1,6 +1,6 @@
 require 'mustache'
 
-module Jekstache    
+module Jmustache    
 
   # Category formating and parsing
   #
@@ -91,14 +91,21 @@ module Jekstache
   end # Posts
 
   
+  # The base Mustache "view".
+  # This is a convenience view that provides optimized access to 
+  # all the Jekyll data we are likely to use.
+  #
+  # You are free to use your own custom views that work 
+  # on top of or in place of this view
+  #
   class Base < Mustache
-    include Jekstache::Categories
-    include Jekstache::Posts
-    include Jekstache::Page
-    include Jekstache::Tags
+    include Jmustache::Categories
+    include Jmustache::Posts
+    include Jmustache::Page
+    include Jmustache::Tags
 
     def output_this_for_me
-      "$$$ base output yazole $$$"
+      "$$$ base output @_@ $$$"
     end
 
     protected 
@@ -122,15 +129,38 @@ module Jekstache
   
 end
 
-
-
-
 module Jekyll
   
-  # This is a custom liquid tag block that tells Jekstache to parse
-  # the contents through Mustache
+  # A custom liquid tag block that tells the Jmustache plugin to parse
+  # the block as a Mustache template.
   #
-  class Templateize < Liquid::Block
+  #  Usage:
+  #  In a liquid template, wrap some content in  a 'mustache' liquid block:
+  #
+  #  {% mustache Home %}
+  #
+  #    <h1>Posts</h1>
+  #    <ul>
+  #    <%# posts %>
+  #      <li><a href="<% url%>"> <% title %></a></li>
+  #    <%/ posts %>
+  #    </ul>
+  #
+  #    <div id="blah"> ... </div>
+  #
+  #  {% endmustache %}
+  #
+  # Note: 
+  #  The mustache tag takes an optional parameter ('Home' in the example above)
+  #  This is the name of the mustache View class you want to provide to the template.
+  #  If you don't pass a view, Jmustache with use Jmustache::Base as its base mustache view.
+  #
+  # Important:
+  #  Always use the custom Mustache delimiters. 
+  #  Normally Mustache uses {{ .. }} but since Liquid also uses these dilimeters
+  #  and we still need liquid, we have to change and use custom Mustache delimiters.
+  #
+  class Mustacheify < Liquid::Block
     Syntax = /(\w+)/
 
     DEFAULTS = {
@@ -149,15 +179,15 @@ module Jekyll
       config = DEFAULTS.merge(context.registers[:site].config["jekstache"] || {})
       reset_delimiters = "{{=#{config["delimiters"][0]} #{config["delimiters"][1]}=}}"
       
-      puts "<Jekstache #{@view_class}>" 
+      puts "<Jmustache #{@view_class}>" 
       puts " - title: " + context["page.title"]
       puts context.class
       puts context["page"]
       
-      Mustache.view_namespace = "Jekstache"
+      Mustache.view_namespace = "Jmustache"
       Mustache.view_path = File.join(context.registers[:site].config['source'], config["views_path"])
       
-      view = @view_class ? Mustache.view_class(@view_class) : Jekstache::Base
+      view = @view_class ? Mustache.view_class(@view_class) : Jmustache::Base
       view.template =  reset_delimiters + super
       
       view.render({
@@ -167,8 +197,8 @@ module Jekyll
       })
     end
 
-  end # Templateize
+  end # Mustacheify
 
 end # Jekyll
 
-Liquid::Template.register_tag('jekstache', Jekyll::Templateize)
+Liquid::Template.register_tag('mustache', Jekyll::Mustacheify)

@@ -65,3 +65,6 @@ This plugin registers a liquid block tag named `jekstache`.
 
 
 
+## TODO
+
+- Add demo jekyll website running mustache-with-jekyll
