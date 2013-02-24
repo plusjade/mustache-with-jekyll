@@ -1,3 +1,7 @@
+# THIS PLUGIN IS NOT MAINTAINED.
+
+I will keep it up of course because it does work! However hacking jekyll to run mustache _inside_ of liquid is just wrong ... =/
+I'm building yet another static blog generator from the ground up that natively supports mustache so perhaps that will catch your interest: http://ruhoh.com
 
 ## What 
 
